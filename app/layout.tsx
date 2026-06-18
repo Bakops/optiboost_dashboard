@@ -15,15 +15,15 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/optiboost_favicon.png',
+        url: '/Favicon noire.png',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/optiboost_favicon.png',
+        url: '/Favicon noire.png',
         media: '(prefers-color-scheme: dark)',
       },
       {
-        url: '/optiboost_favicon.svg',
+        url: '/Favicon noire.png',
         type: 'image/svg+xml',
       },
     ],

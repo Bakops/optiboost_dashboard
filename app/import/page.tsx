@@ -12,7 +12,7 @@ const steps = [
   { title: "Vérifiez les colonnes", text: "Nous détectons automatiquement nom, e-mail, date d'achat et montant." },
 ]
 
-const columns = ["Nom", "E-mail", "Téléphone", "Date du dernier achat", "Montant", "Type de verres"]
+const columns = ["nom","prénom", "e-mail", "téléphone","dernierAchat", "dateDernierAchat", "montant", "typeProduit"]
 
 export default function ImportPage() {
   const [fileName, setFileName] = useState<string | null>(null)
@@ -40,7 +40,7 @@ export default function ImportPage() {
             </div>
           )}
           <Button
-            className="gap-2"
+            className="gap-2 cursor-pointer"
             onClick={() => setFileName("clients_optique.xlsx")}
           >
             <FileSpreadsheet className="h-4 w-4" />

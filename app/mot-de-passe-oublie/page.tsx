@@ -3,7 +3,7 @@ import { AuthLayout } from "@/components/auth/auth-layout"
 
 export default function MotDePasseOubliePage() {
   return (
-    <AuthLayout imageSrc="/images/auth-login.png" imageAlt="Paysage agricole moderne vu du ciel">
+    <AuthLayout imageSrc="/images/image_lunette_aesthtetic_solo_2.jpg" imageAlt="Paysage agricole moderne vu du ciel">
       <header className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-1 text-xl font-bold tracking-tight text-foreground">
           <img src="./optiboost_logo_1.png" alt="Optiboost Logo" className="h-10 w-auto object-contain" />

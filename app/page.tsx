@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <AppShell
       action={
-        <Button className="gap-2">
+        <Button className="gap-2 cursor-pointer" variant="secondary">
           <FileSpreadsheet className="h-4 w-4" />
           <span className="hidden sm:inline">Importer un fichier Excel</span>
           <span className="sm:hidden">Importer</span>

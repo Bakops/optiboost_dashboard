@@ -65,7 +65,7 @@ export default function SignupPage() {
 
             <Link
               href="/"
-              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer"
             >
               S&apos;inscrire
             </Link>
