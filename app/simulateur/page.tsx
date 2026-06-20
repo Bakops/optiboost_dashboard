@@ -1,19 +1,46 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Sparkles, TrendingUp } from "lucide-react"
 import { AppShell } from "@/components/dashboard/app-shell"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { estimateSimulator, getSimulatorDefaults } from "@/lib/api"
 
 export default function SimulateurPage() {
-  const [inactifs, setInactifs] = useState(560)
-  const [panier, setPanier] = useState(285)
+  const [inactifs, setInactifs] = useState(0)
+  const [panier, setPanier] = useState(0)
   const [conversion, setConversion] = useState(5)
+  const [clientsRecuperes, setClientsRecuperes] = useState(0)
+  const [gain, setGain] = useState(0)
+  const [loading, setLoading] = useState(true)
 
-  const clientsRecuperes = Math.round((inactifs * conversion) / 100)
-  const gain = clientsRecuperes * panier
+  useEffect(() => {
+    getSimulatorDefaults()
+      .then((defaults) => {
+        setInactifs(defaults.inactiveClients)
+        setPanier(defaults.averageBasket)
+        setConversion(defaults.conversionRate)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    estimateSimulator({
+      inactiveClients: inactifs,
+      averageBasket: panier,
+      conversionRate: conversion,
+    })
+      .then((estimate) => {
+        setClientsRecuperes(estimate.recoveredClients)
+        setGain(estimate.estimatedRevenue)
+      })
+      .catch(() => {
+        setClientsRecuperes(0)
+        setGain(0)
+      })
+  }, [conversion, inactifs, panier])
 
   const fields = [
     {
@@ -52,6 +79,11 @@ export default function SimulateurPage() {
           <p className="mt-1 text-xs text-muted-foreground">
             Ajustez les valeurs pour estimer le gain potentiel d&apos;une campagne
           </p>
+          {loading && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Chargement des valeurs par défaut...
+            </p>
+          )}
           <div className="mt-6 flex flex-col gap-5">
             {fields.map((f) => (
               <div key={f.id} className="flex flex-col gap-1.5">

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table"
 
 type Status = "Fidèle" | "À relancer" | "Perdu"
+type DashboardClient = { id: string; name: string; status: Status; lastPurchase: string }
 
 const statusStyles: Record<Status, string> = {
   Fidèle: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -18,16 +19,7 @@ const statusStyles: Record<Status, string> = {
   Perdu: "bg-rose-50 text-rose-700 border-rose-200",
 }
 
-const clients: { name: string; status: Status; lastPurchase: string }[] = [
-  { name: "Sophie Lefèvre", status: "Fidèle", lastPurchase: "12 mai 2026" },
-  { name: "Marc Dubois", status: "À relancer", lastPurchase: "3 janv. 2026" },
-  { name: "Émilie Rousseau", status: "Fidèle", lastPurchase: "28 avr. 2026" },
-  { name: "Julien Bernard", status: "Perdu", lastPurchase: "9 août 2024" },
-  { name: "Camille Petit", status: "À relancer", lastPurchase: "17 déc. 2025" },
-  { name: "Thomas Moreau", status: "Fidèle", lastPurchase: "2 mai 2026" },
-]
-
-export function ClientsTable() {
+export function ClientsTable({ clients }: { clients: DashboardClient[] }) {
   return (
     <Card className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
@@ -52,7 +44,7 @@ export function ClientsTable() {
         </TableHeader>
         <TableBody>
           {clients.map((c) => (
-            <TableRow key={c.name}>
+            <TableRow key={c.id}>
               <TableCell className="pl-6 font-medium text-foreground">
                 {c.name}
               </TableCell>
@@ -78,6 +70,16 @@ export function ClientsTable() {
               </TableCell>
             </TableRow>
           ))}
+          {clients.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="py-10 text-center text-sm text-muted-foreground"
+              >
+                Aucun client récent à afficher.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
       </div>

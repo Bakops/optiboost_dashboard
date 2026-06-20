@@ -7,9 +7,15 @@ import { cn } from "@/lib/utils"
 export function PasswordField({
   id,
   placeholder,
+  value,
+  onChange,
+  name,
 }: {
   id: string
   placeholder?: string
+  value?: string
+  onChange?: (value: string) => void
+  name?: string
 }) {
   const [visible, setVisible] = useState(false)
 
@@ -17,8 +23,11 @@ export function PasswordField({
     <div className="relative">
       <input
         id={id}
+        name={name}
         type={visible ? "text" : "password"}
         placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         className={cn(
           "h-12 w-full rounded-lg border border-input bg-card px-4 pr-12 text-sm text-foreground",
           "placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring",

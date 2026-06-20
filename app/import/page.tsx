@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { UploadCloud, FileSpreadsheet, CheckCircle2 } from "lucide-react"
 import { AppShell } from "@/components/dashboard/app-shell"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { createImport } from "@/lib/api"
 
 const steps = [
   { title: "Préparez votre fichier", text: "Exportez vos clients au format .xlsx ou .csv depuis votre logiciel de caisse." },
@@ -15,7 +16,35 @@ const steps = [
 const columns = ["nom","prénom", "e-mail", "téléphone","dernierAchat", "dateDernierAchat", "montant", "typeProduit"]
 
 export default function ImportPage() {
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    setLoading(true)
+    setMessage(null)
+
+    try {
+      const response = await createImport({
+        fileName: file.name,
+        totalRows: 0,
+      })
+
+      setFileName(response.fileName)
+      setMessage(`${response.message} Identifiant: ${response.importId}`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Import impossible")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <AppShell>
@@ -41,11 +70,22 @@ export default function ImportPage() {
           )}
           <Button
             className="gap-2 cursor-pointer"
-            onClick={() => setFileName("clients_optique.xlsx")}
+            onClick={() => inputRef.current?.click()}
+            disabled={loading}
           >
             <FileSpreadsheet className="h-4 w-4" />
-            Parcourir les fichiers
+            {loading ? "Import en cours..." : "Parcourir les fichiers"}
           </Button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".csv,.xlsx"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          {message && (
+            <p className="text-xs text-muted-foreground">{message}</p>
+          )}
         </Card>
 
         <Card className="p-6">

@@ -1,7 +1,14 @@
-export function GoogleButton({ label }: { label: string }) {
+export function GoogleButton({
+  label,
+  onClick,
+}: {
+  label: string
+  onClick?: () => void
+}) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-input bg-card text-sm font-medium text-foreground transition-colors hover:bg-muted cursor-pointer"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">

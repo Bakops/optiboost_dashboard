@@ -1,7 +1,32 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { AuthLayout } from "@/components/auth/auth-layout"
+import { forgotPassword } from "@/lib/api"
 
 export default function MotDePasseOubliePage() {
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setLoading(true)
+    setMessage(null)
+
+    try {
+      const response = await forgotPassword({ email })
+      setMessage(response.message)
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Réinitialisation impossible",
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <AuthLayout imageSrc="/images/image_lunette_aesthtetic_solo_2.jpg" imageAlt="Paysage agricole moderne vu du ciel">
       <header className="flex items-center justify-between">
@@ -28,7 +53,7 @@ export default function MotDePasseOubliePage() {
             </p>
           </div>
 
-          <form className="flex flex-col gap-5">
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
@@ -37,17 +62,24 @@ export default function MotDePasseOubliePage() {
                 id="email"
                 type="email"
                 placeholder="vous@exemple.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="h-12 w-full rounded-lg border border-input bg-card px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
               />
             </div>
 
-            <Link
-              href="/connexion"
-              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Envoyer le lien de réinitialisation
-            </Link>
+              {loading ? "Envoi..." : "Envoyer le lien de réinitialisation"}
+            </button>
           </form>
+
+          {message && (
+            <p className="mt-4 text-center text-sm text-muted-foreground">{message}</p>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             <Link href="/connexion" className="font-medium text-primary hover:underline">

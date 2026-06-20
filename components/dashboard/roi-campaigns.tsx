@@ -2,13 +2,29 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Mail, MessageSquare, Phone, Sparkles } from "lucide-react"
 
-const channels = [
-  { label: "Campagne E-mail", icon: Mail, count: 318 },
-  { label: "Campagne SMS", icon: MessageSquare, count: 142 },
-  { label: "Campagne WhatsApp", icon: Phone, count: 96 },
-]
+type RoiAndCampaignsProps = {
+  recoveryPotential: number
+  quickCampaignCounts: {
+    email: number
+    sms: number
+    whatsapp: number
+  }
+}
 
-export function RoiAndCampaigns() {
+export function RoiAndCampaigns({
+  recoveryPotential,
+  quickCampaignCounts,
+}: RoiAndCampaignsProps) {
+  const channels = [
+    { label: "Campagne E-mail", icon: Mail, count: quickCampaignCounts.email },
+    { label: "Campagne SMS", icon: MessageSquare, count: quickCampaignCounts.sms },
+    {
+      label: "Campagne WhatsApp",
+      icon: Phone,
+      count: quickCampaignCounts.whatsapp,
+    },
+  ]
+
   return (
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card className="flex flex-col justify-between border-accent-foreground/15 bg-accent/40 p-6 lg:col-span-1">
@@ -23,7 +39,7 @@ export function RoiAndCampaigns() {
             En moyenne, une campagne récupère 5% des clients inactifs.
           </p>
           <div className="mt-4 text-4xl font-semibold tracking-tight text-foreground">
-            + 4 250 €
+            + {recoveryPotential.toLocaleString("fr-FR")} €
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             Gain théorique estimé

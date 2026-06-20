@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
 import { AppShell } from "@/components/dashboard/app-shell"
 import { Card } from "@/components/ui/card"
@@ -15,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { clients, statusStyles, type Status } from "@/lib/clients-data"
+import { getClients, relanceClient, type ClientsListItem } from "@/lib/api"
+import { statusStyles, type Status } from "@/lib/clients-data"
 import { cn } from "@/lib/utils"
 
 const filters: (Status | "Tous")[] = ["Tous", "Fidèle", "À relancer", "Perdu"]
@@ -23,16 +24,45 @@ const filters: (Status | "Tous")[] = ["Tous", "Fidèle", "À relancer", "Perdu"]
 export default function ClientsPage() {
   const [query, setQuery] = useState("")
   const [filter, setFilter] = useState<Status | "Tous">("Tous")
+  const [clients, setClients] = useState<ClientsListItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [relanceMessage, setRelanceMessage] = useState<string | null>(null)
 
-  const filtered = useMemo(() => {
-    return clients.filter((c) => {
-      const matchesFilter = filter === "Tous" || c.status === filter
-      const matchesQuery =
-        c.name.toLowerCase().includes(query.toLowerCase()) ||
-        c.email.toLowerCase().includes(query.toLowerCase())
-      return matchesFilter && matchesQuery
-    })
+  useEffect(() => {
+    const params = new URLSearchParams()
+
+    if (query.trim()) {
+      params.set("search", query.trim())
+    }
+
+    if (filter !== "Tous") {
+      params.set("status", filter)
+    }
+
+    setLoading(true)
+    setError(null)
+
+    getClients(params)
+      .then((response) => setClients(response.data))
+      .catch((fetchError) => {
+        setError(fetchError instanceof Error ? fetchError.message : "Erreur API")
+      })
+      .finally(() => setLoading(false))
   }, [query, filter])
+
+  async function handleRelance(clientId: string) {
+    setRelanceMessage(null)
+
+    try {
+      const response = await relanceClient(clientId, { channel: "email" })
+      setRelanceMessage(response.message)
+    } catch (relanceError) {
+      setRelanceMessage(
+        relanceError instanceof Error ? relanceError.message : "Relance impossible",
+      )
+    }
+  }
 
   return (
     <AppShell>
@@ -64,6 +94,12 @@ export default function ClientsPage() {
             ))}
           </div>
         </div>
+        {error && (
+          <p className="mt-4 text-sm text-rose-600">{error}</p>
+        )}
+        {relanceMessage && !error && (
+          <p className="mt-4 text-sm text-emerald-700">{relanceMessage}</p>
+        )}
       </Card>
 
       <Card className="p-0">
@@ -80,7 +116,7 @@ export default function ClientsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((c) => (
+              {clients.map((c) => (
                 <TableRow key={c.email}>
                   <TableCell className="pl-6">
                     <div className="flex flex-col">
@@ -114,19 +150,30 @@ export default function ClientsPage() {
                       variant="ghost"
                       size="sm"
                       className="text-accent-foreground hover:bg-accent"
+                      onClick={() => handleRelance(c.id)}
                     >
                       Relancer
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
-              {filtered.length === 0 && (
+              {!loading && clients.length === 0 && (
                 <TableRow>
                   <TableCell
                     colSpan={6}
                     className="py-10 text-center text-sm text-muted-foreground"
                   >
                     Aucun client ne correspond à votre recherche.
+                  </TableCell>
+                </TableRow>
+              )}
+              {loading && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
+                    Chargement des clients...
                   </TableCell>
                 </TableRow>
               )}

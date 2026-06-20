@@ -1,9 +1,64 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { AuthLayout } from "@/components/auth/auth-layout"
 import { GoogleButton } from "@/components/auth/google-button"
 import { PasswordField } from "@/components/auth/password-field"
+import { loginWithGoogle, persistAuthSession, register } from "@/lib/api"
 
 export default function SignupPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (password !== confirmPassword) {
+      setMessage("Les mots de passe ne correspondent pas.")
+      return
+    }
+
+    setLoading(true)
+    setMessage(null)
+
+    try {
+      const response = await register({
+        email,
+        password,
+        organizationName: "Optiboost Demo",
+      })
+      persistAuthSession(response)
+      setMessage(response.message)
+      router.push("/")
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Inscription impossible")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleGoogleSignup() {
+    setLoading(true)
+    setMessage(null)
+
+    try {
+      const response = await loginWithGoogle({ email: email || undefined })
+      persistAuthSession(response)
+      setMessage(response.message)
+      router.push("/")
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Inscription Google impossible")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <AuthLayout imageSrc="/images/image_lunette_aesthtetic_solo.jpg" imageAlt="Paysage agricole futuriste au coucher du soleil">
       <header className="flex items-center justify-between">
@@ -28,7 +83,7 @@ export default function SignupPage() {
             <p className="mt-2 text-muted-foreground">la solution de gestion d'entreprise tout-en-un</p>
           </div>
 
-          <GoogleButton label="Sign up with Google" />
+          <GoogleButton label="S'inscrire avec Google" onClick={handleGoogleSignup} />
 
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-border" />
@@ -36,7 +91,7 @@ export default function SignupPage() {
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <form className="flex flex-col gap-5">
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
@@ -45,6 +100,8 @@ export default function SignupPage() {
                 id="email"
                 type="email"
                 placeholder="ugaka1204@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="h-12 w-full rounded-lg border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -53,23 +110,28 @@ export default function SignupPage() {
               <label htmlFor="password" className="text-sm font-medium text-foreground">
                 Mot de passe
               </label>
-              <PasswordField id="password" />
+              <PasswordField id="password" value={password} onChange={setPassword} />
             </div>
 
             <div className="flex flex-col gap-2">
               <label htmlFor="confirm" className="text-sm font-medium text-foreground">
                 Confirmer le mot de passe
               </label>
-              <PasswordField id="confirm" />
+              <PasswordField id="confirm" value={confirmPassword} onChange={setConfirmPassword} />
             </div>
 
-            <Link
-              href="/"
-              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer"
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 flex h-12 w-full items-center justify-center rounded-lg bg-[#FF6B35] text-sm font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
-              S&apos;inscrire
-            </Link>
+              {loading ? "Inscription..." : "S'inscrire"}
+            </button>
           </form>
+
+          {message && (
+            <p className="mt-4 text-center text-sm text-muted-foreground">{message}</p>
+          )}
 
           <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
             En cliquant sur «&nbsp;S&apos;inscrire&nbsp;», vous acceptez les Conditions d&apos;utilisation

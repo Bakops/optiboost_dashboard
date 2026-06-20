@@ -1,13 +1,33 @@
 import { Card } from "@/components/ui/card"
 import { TrendingUp, Crown } from "lucide-react"
 
-const segments = [
-  { label: "Fidèles", value: 58, color: "bg-emerald-500" },
-  { label: "À relancer", value: 30, color: "bg-amber-500" },
-  { label: "Perdus", value: 12, color: "bg-rose-500" },
-]
+type KpiCardsProps = {
+  averageBasket: number
+  averageBasketDelta: number
+  premiumRatio: number
+  segments: {
+    fidele: number
+    aRelancer: number
+    perdu: number
+  }
+}
 
-export function KpiCards() {
+export function KpiCards({
+  averageBasket,
+  averageBasketDelta,
+  premiumRatio,
+  segments,
+}: KpiCardsProps) {
+  const distribution = [
+    { label: "Fidèles", value: segments.fidele, color: "bg-emerald-500" },
+    {
+      label: "À relancer",
+      value: segments.aRelancer,
+      color: "bg-amber-500",
+    },
+    { label: "Perdus", value: segments.perdu, color: "bg-rose-500" },
+  ]
+
   return (
     <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <Card className="p-6">
@@ -19,9 +39,11 @@ export function KpiCards() {
         </div>
         <div className="mt-3 flex items-baseline gap-2">
           <span className="text-3xl font-semibold tracking-tight text-foreground">
-            285 €
+            {averageBasket.toLocaleString("fr-FR")} €
           </span>
-          <span className="text-xs font-medium text-emerald-600">+4,2%</span>
+          <span className="text-xs font-medium text-emerald-600">
+            +{averageBasketDelta.toLocaleString("fr-FR")}%
+          </span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           Sur les 30 derniers jours
@@ -37,7 +59,7 @@ export function KpiCards() {
         </div>
         <div className="mt-3 flex items-baseline gap-2">
           <span className="text-3xl font-semibold tracking-tight text-foreground">
-            24%
+            {premiumRatio}%
           </span>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -50,7 +72,7 @@ export function KpiCards() {
           Répartition Clients
         </span>
         <div className="mt-4 flex h-2.5 w-full overflow-hidden rounded-full">
-          {segments.map((s) => (
+          {distribution.map((s) => (
             <div
               key={s.label}
               className={s.color}
@@ -59,7 +81,7 @@ export function KpiCards() {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-          {segments.map((s) => (
+          {distribution.map((s) => (
             <div key={s.label} className="flex items-center gap-1.5">
               <span className={`h-2 w-2 rounded-full ${s.color}`} />
               <span className="text-xs text-muted-foreground">
